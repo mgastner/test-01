@@ -1,0 +1,139 @@
+=== MTG ======================================================================
+
+I want to make a YouTube video for third-party contributors to https://github.com/go-cart-io/cartogram-web. Note that there is a related repository: https://github.com/go-cart-io/cartogram-docker. Explain the relationship between these two repositories.
+
+
+=== CHATGPT ==================================================================
+
+Here’s the short version you can say in your video:
+
+* **`cartogram-web`** is the actual app. It’s the source code for go-cart.io—the frontend (Vue) + backend (Python) that talks to the **`cartogram-cpp`** binary to generate contiguous cartograms. It’s what you change when you add features, fix bugs, or improve the UI/UX. ([GitHub][1])
+* **`cartogram-docker`** is the packaging/orchestration repo. It gives you a ready-to-run **Docker Compose** setup so you can spin up a local or self-hosted instance of the website (the same `cartogram-web` app) at `http://localhost:5001`, optionally pinning a release via the `TAG` env var. It’s what you use to develop, test, or deploy without hand-installing dependencies. ([GitHub][2])
+
+How they fit together (in one sentence):
+**`cartogram-web` = code; `cartogram-docker` = the easiest way to run that code locally or in prod.** The `cartogram-web` README even points contributors to the Docker setup if they want to run the tool locally. ([GitHub][1])
+
+If you want one line for the video:
+“Contribute code in `cartogram-web`; run it anywhere with `cartogram-docker`—which launches the same web app, backed by the flow-based `cartogram-cpp` engine we use in production.” ([GitHub][1])
+
+(For completeness, the hosted site at **go-cart.io** is just a deployment of `cartogram-web`.) ([go-cart.io][3])
+
+[1]: https://github.com/go-cart-io/cartogram-web "GitHub - go-cart-io/cartogram-web: A web-based tool designed to simplify the creation of contiguous cartograms"
+[2]: https://github.com/go-cart-io/cartogram-docker "GitHub - go-cart-io/cartogram-docker: A Docker Compose setup for easily installing and running cartogram-web"
+[3]: https://go-cart.io/?utm_source=chatgpt.com "Creating Cartograms Online"
+
+
+=== MTG ======================================================================
+
+Should contributors be advised to fork both cartogram-docker and cartogram-web?
+
+
+=== CHATGPT ==================================================================
+
+Short answer: **usually just fork `cartogram-web`.**
+Fork **`cartogram-docker` only if you intend to change the Docker/Compose setup** (images, volumes, healthchecks, deploy docs, etc.).
+
+### Recommended workflow
+
+* **Adding features / fixing bugs in the app:**
+
+  * **Fork `cartogram-web`** (make PRs there).
+  * Use `cartogram-docker` only as a *runner*: clone it (no need to fork) to spin up the stack for local testing.
+* **Improving packaging/deployment (Dockerfiles, compose, envs, CI):**
+
+  * **Fork `cartogram-docker`** and open a PR there.
+* **Touching both (e.g., app change that needs a compose tweak):**
+
+  * Fork **both** repos, but **submit separate PRs**: one to `cartogram-web` for app code, one to `cartogram-docker` for orchestration. Cross-link the PRs.
+
+### Practical tips
+
+* You can test `cartogram-web` changes with the docker stack by:
+
+  * Building a local image of your fork and **overriding the image/tag in Compose**, or
+  * **Mounting the local source** into the container (if the stack supports it) for rapid iteration.
+* Keep PRs scoped to the repo that actually owns the change; it simplifies review and release.
+
+
+=== MTG ======================================================================
+
+How can I practice making a pull request from a forked repo to the original? What is the proper technical name for "forked repo" and "original repo" in this context?
+
+
+=== CHATGPT ==================================================================
+
+Here’s how to think about it and practice safely.
+
+# What things are called
+
+* **Forked repo**: just “**fork**” (your copy on your GitHub account).
+
+  * In Git remotes, this is usually named **`origin`**.
+* **Original repo**: the “**upstream**” or “**parent repository**”.
+
+  * In Git remotes, add it as **`upstream`**.
+
+# Safe ways to practice (pick one)
+
+1. **Use a private sandbox repo you control**
+
+   * Create a private repo `practice-upstream` under your account or an org you own.
+   * From a **second place** (e.g., another GitHub account you own or an org), fork it.
+   * Open a PR from the fork back to `practice-upstream`. (No one else is bothered.)
+
+2. **Open a Draft PR on a public repo you actually plan to contribute to**
+
+   * Make a tiny, harmless change (e.g., fix a typo).
+   * Mark the PR as **Draft** so maintainers know you’re practicing, then close it.
+
+# Step-by-step (command line + GitHub UI)
+
+```bash
+# 0) Fork the repository on GitHub (click “Fork”)
+
+# 1) Clone YOUR fork (the fork lives at github.com/<you>/<repo>)
+git clone git@github.com:<you>/<repo>.git
+cd <repo>
+
+# 2) Add the original as an 'upstream' remote
+git remote add upstream git@github.com:<original-owner>/<repo>.git
+git remote -v   # shows 'origin' (your fork) and 'upstream' (original)
+
+# 3) Create a feature branch off the latest upstream default branch
+git fetch upstream
+git checkout -b feat/demo upstream/main   # or upstream/master as appropriate
+
+# 4) Make a small change, then commit
+# (edit files)
+git add .
+git commit -m "docs: small tweak for PR practice"
+
+# 5) Push your branch to YOUR fork
+git push -u origin feat/demo
+```
+
+Now go to your fork on GitHub. It will show a banner: **“Compare & pull request.”** Click it:
+
+* **Base repository** = the **upstream** repo (original owner) and its default branch.
+* **Head repository** = **your fork** and the branch you just pushed.
+* Write a clear title/description, optionally mark as **Draft**, and **Create pull request**.
+
+# Keeping your fork up to date (useful while practicing)
+
+```bash
+# From inside your local clone:
+git fetch upstream
+git checkout main
+git merge upstream/main      # or: git rebase upstream/main
+git push origin main
+```
+
+# Quick glossary recap
+
+* **Fork** (forked repository): your copy on GitHub. Remote name: **origin**.
+* **Upstream** (original/parent repository): the source you forked from. Remote name: **upstream**.
+* **PR across forks**: compares your fork’s branch (head) to upstream’s branch (base).
+
+That’s it—do the above once and you’ll have the full fork → branch → push → PR muscle memory.
+
+
