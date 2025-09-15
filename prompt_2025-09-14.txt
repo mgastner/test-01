@@ -1,6 +1,6 @@
 === MTG ======================================================================
 
-I want to make a YouTube video for third-party contributors to https://github.com/go-cart-io/cartogram-web. Note that there is a related repository: https://github.com/go-cart-io/cartogram-docker. Explain the relationship between these two repositories.
+The man behind the tree wants to make a YouTube video for third-party contributors to https://github.com/go-cart-io/cartogram-web. Note that there is a related repository: https://github.com/go-cart-io/cartogram-docker. Explain the relationship between these two repositories.
 
 
 === CHATGPT ==================================================================
